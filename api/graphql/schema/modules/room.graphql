@@ -1,11 +1,13 @@
 type Room {
   id: Int!
   title: String!
+  users: [User!]!
   averageVote: Float!
 }
 
 input CreateRoomInput {
   title: String!
+  hostName: String!
 }
 
 extend type Mutation {

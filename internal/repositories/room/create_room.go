@@ -13,12 +13,20 @@ func getNextID() int {
 }
 
 func CreateRoom(data *dto.CreateRoomDTO) (*models.Room, error) {
-	// user := &models.User{
-	// }
+	var users []*models.User
+
+	user := &models.User{
+		ID:       getNextID(),
+		Username: *data.HostName,
+		IsAdmin:  true,
+	}
+
+	users = append(users, user)
 
 	room := &models.Room{
 		ID:    getNextID(),
 		Title: data.Title,
+		Users: users,
 	}
 
 	return room, nil

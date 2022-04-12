@@ -1,10 +1,10 @@
 package dto
 
 type CreateRoomDTO struct {
-	Title string
-	// User  *user
+	Title    string
+	HostName *string
 }
 
-type UpdateRoomDTO struct {
-	// User *user
-}
+// type UpdateRoomDTO struct {
+// 	User *user
+// }

@@ -3,13 +3,8 @@
 package gmodels
 
 type CreateRoomInput struct {
-	Title string `json:"title"`
-}
-
-type Room struct {
-	ID          int     `json:"id"`
-	Title       string  `json:"title"`
-	AverageVote float64 `json:"averageVote"`
+	Title    string `json:"title"`
+	HostName string `json:"hostName"`
 }
 
 type CreateUserInput struct {

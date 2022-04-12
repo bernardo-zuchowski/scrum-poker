@@ -9,30 +9,20 @@ import (
 	"multipoker/api/graphql/generated"
 	gmodels "multipoker/api/graphql/models"
 	"multipoker/internal/dto"
+	"multipoker/internal/models"
 	roomRepository "multipoker/internal/repositories/room"
 )
 
-func (r *mutationResolver) CreateRoom(ctx context.Context, data gmodels.CreateRoomInput) (*gmodels.Room, error) {
+func (r *mutationResolver) CreateRoom(ctx context.Context, data gmodels.CreateRoomInput) (*models.Room, error) {
 	dto := &dto.CreateRoomDTO{
-		Title: data.Title,
+		Title:    data.Title,
+		HostName: &data.HostName,
 	}
 
-	room, err := roomRepository.CreateRoom(dto)
-
-	if err != nil {
-		return nil, err
-	}
-
-	gromm := &gmodels.Room{
-		ID:          room.ID,
-		Title:       room.Title,
-		AverageVote: room.AverageVote,
-	}
-
-	return gromm, nil
+	return roomRepository.CreateRoom(dto)
 }
 
-func (r *mutationResolver) UpdateRoom(ctx context.Context, id int) (*gmodels.Room, error) {
+func (r *mutationResolver) UpdateRoom(ctx context.Context, id int) (*models.Room, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
@@ -40,13 +30,3 @@ func (r *mutationResolver) UpdateRoom(ctx context.Context, id int) (*gmodels.Roo
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
 type mutationResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *queryResolver) Rooms(ctx context.Context) ([]*gmodels.Room, error) {
-	panic(fmt.Errorf("not implemented"))
-}

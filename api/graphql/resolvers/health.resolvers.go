@@ -5,14 +5,8 @@ package gresolvers
 
 import (
 	"context"
-	"multipoker/api/graphql/generated"
 )
 
 func (r *queryResolver) HealthCheck(ctx context.Context) (bool, error) {
 	return true, nil
 }
-
-// Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
-
-type queryResolver struct{ *Resolver }
