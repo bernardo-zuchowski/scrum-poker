@@ -2,7 +2,12 @@
 
 package gmodels
 
-type CreateTodoInput struct {
+type CreateRoomInput struct {
 	Title string `json:"title"`
-	Done  bool   `json:"done"`
+}
+
+type Room struct {
+	ID          int     `json:"id"`
+	Title       string  `json:"title"`
+	AverageVote float64 `json:"averageVote"`
 }
