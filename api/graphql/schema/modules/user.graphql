@@ -1,0 +1,21 @@
+type User {
+  id: Int!
+  username: String!
+  vote: Int
+  isVoting: Boolean!
+  isAdmin: Boolean!
+}
+
+extend type Query {
+  users: [User!]!
+}
+
+input CreateUserInput {
+  username: String!
+  vote: Int
+  isAdmin: Boolean!
+}
+
+extend type Mutation {
+  createUser(data: CreateUserInput!): User!
+}

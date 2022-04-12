@@ -11,3 +11,9 @@ type Room struct {
 	Title       string  `json:"title"`
 	AverageVote float64 `json:"averageVote"`
 }
+
+type CreateUserInput struct {
+	Username string `json:"username"`
+	Vote     *int   `json:"vote"`
+	IsAdmin  bool   `json:"isAdmin"`
+}

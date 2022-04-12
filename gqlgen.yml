@@ -51,5 +51,7 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
-  # Room:
-  #   model: multipoker/internal/models.Room
+  Room:
+    model: multipoker/internal/models.Room
+  User:
+    model: multipoker/internal/models.User
