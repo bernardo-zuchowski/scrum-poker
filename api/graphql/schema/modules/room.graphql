@@ -1,0 +1,14 @@
+type Room {
+  id: Int!
+  title: String!
+  averageVote: Float!
+}
+
+input CreateRoomInput {
+  title: String!
+}
+
+extend type Mutation {
+  createRoom(data: CreateRoomInput!): Room!
+  updateRoom(id: Int!): Room!
+}
