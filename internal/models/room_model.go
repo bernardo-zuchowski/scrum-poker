@@ -5,5 +5,5 @@ type Room struct {
 	Title       string
 	HostName    *User
 	Users       []*User
-	AverageVote float64
+	AverageVote float32
 }

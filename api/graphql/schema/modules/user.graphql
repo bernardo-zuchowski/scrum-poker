@@ -1,7 +1,7 @@
 type User {
   id: Int!
   username: String!
-  vote: Int
+  vote: Float!
   isAdmin: Boolean!
 }
 

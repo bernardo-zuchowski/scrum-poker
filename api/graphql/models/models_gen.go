@@ -12,3 +12,7 @@ type CreateUserInput struct {
 	IsAdmin  bool   `json:"isAdmin"`
 	RoomID   int    `json:"roomId"`
 }
+
+type GetRoomVotesInput struct {
+	RoomID int `json:"roomId"`
+}

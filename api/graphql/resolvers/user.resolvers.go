@@ -5,6 +5,7 @@ package gresolvers
 
 import (
 	"context"
+	"multipoker/api/graphql/generated"
 	gmodels "multipoker/api/graphql/models"
 	"multipoker/internal/dto"
 	"multipoker/internal/models"
@@ -23,3 +24,12 @@ func (r *mutationResolver) CreateUser(ctx context.Context, data gmodels.CreateUs
 func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 	return repository.GetAllUsers()
 }
+
+func (r *userResolver) Vote(ctx context.Context, obj *models.User) (float64, error) {
+	return float64(obj.Vote), nil
+}
+
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+
+type userResolver struct{ *Resolver }
