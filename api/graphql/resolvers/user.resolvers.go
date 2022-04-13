@@ -5,27 +5,21 @@ package gresolvers
 
 import (
 	"context"
-	"multipoker/api/graphql/generated"
 	gmodels "multipoker/api/graphql/models"
 	"multipoker/internal/dto"
 	"multipoker/internal/models"
-	userRepository "multipoker/internal/repositories"
+	repository "multipoker/internal/repository"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, data gmodels.CreateUserInput) (*models.User, error) {
 	dto := &dto.CreateUserDTO{
 		Username: data.Username,
-		Vote:     data.Vote,
+		RoomID:   data.RoomID,
 	}
 
-	return userRepository.CreateUser(dto)
+	return repository.CreateUser(dto)
 }
 
 func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
-	return userRepository.GetAllUsers()
+	return repository.GetAllUsers()
 }
-
-// Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
-
-type queryResolver struct{ *Resolver }

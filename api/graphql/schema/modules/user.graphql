@@ -12,8 +12,8 @@ extend type Query {
 
 input CreateUserInput {
   username: String!
-  vote: Int
   isAdmin: Boolean!
+  roomId: Int!
 }
 
 extend type Mutation {

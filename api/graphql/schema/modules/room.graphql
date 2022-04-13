@@ -5,6 +5,10 @@ type Room {
   averageVote: Float!
 }
 
+extend type Query {
+  rooms: [Room!]!
+}
+
 input CreateRoomInput {
   title: String!
   hostName: String!
@@ -12,5 +16,4 @@ input CreateRoomInput {
 
 extend type Mutation {
   createRoom(data: CreateRoomInput!): Room!
-  updateRoom(id: Int!): Room!
 }

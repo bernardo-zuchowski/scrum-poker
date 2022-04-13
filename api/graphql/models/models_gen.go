@@ -9,6 +9,6 @@ type CreateRoomInput struct {
 
 type CreateUserInput struct {
 	Username string `json:"username"`
-	Vote     *int   `json:"vote"`
 	IsAdmin  bool   `json:"isAdmin"`
+	RoomID   int    `json:"roomId"`
 }

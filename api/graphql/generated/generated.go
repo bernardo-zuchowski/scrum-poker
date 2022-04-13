@@ -47,11 +47,11 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateRoom func(childComplexity int, data gmodels.CreateRoomInput) int
 		CreateUser func(childComplexity int, data gmodels.CreateUserInput) int
-		UpdateRoom func(childComplexity int, id int) int
 	}
 
 	Query struct {
 		HealthCheck func(childComplexity int) int
+		Rooms       func(childComplexity int) int
 		Users       func(childComplexity int) int
 	}
 
@@ -73,10 +73,10 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateRoom(ctx context.Context, data gmodels.CreateRoomInput) (*models.Room, error)
-	UpdateRoom(ctx context.Context, id int) (*models.Room, error)
 	CreateUser(ctx context.Context, data gmodels.CreateUserInput) (*models.User, error)
 }
 type QueryResolver interface {
+	Rooms(ctx context.Context) ([]*models.Room, error)
 	Users(ctx context.Context) ([]*models.User, error)
 	HealthCheck(ctx context.Context) (bool, error)
 }
@@ -120,24 +120,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["data"].(gmodels.CreateUserInput)), true
 
-	case "Mutation.updateRoom":
-		if e.complexity.Mutation.UpdateRoom == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateRoom_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateRoom(childComplexity, args["id"].(int)), true
-
 	case "Query.healthCheck":
 		if e.complexity.Query.HealthCheck == nil {
 			break
 		}
 
 		return e.complexity.Query.HealthCheck(childComplexity), true
+
+	case "Query.rooms":
+		if e.complexity.Query.Rooms == nil {
+			break
+		}
+
+		return e.complexity.Query.Rooms(childComplexity), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -280,6 +275,10 @@ var sources = []*ast.Source{
   averageVote: Float!
 }
 
+extend type Query {
+  rooms: [Room!]!
+}
+
 input CreateRoomInput {
   title: String!
   hostName: String!
@@ -287,7 +286,6 @@ input CreateRoomInput {
 
 extend type Mutation {
   createRoom(data: CreateRoomInput!): Room!
-  updateRoom(id: Int!): Room!
 }`, BuiltIn: false},
 	{Name: "api/graphql/schema/modules/user.graphql", Input: `type User {
   id: Int!
@@ -303,8 +301,8 @@ extend type Query {
 
 input CreateUserInput {
   username: String!
-  vote: Int
   isAdmin: Boolean!
+  roomId: Int!
 }
 
 extend type Mutation {
@@ -347,21 +345,6 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 		}
 	}
 	args["data"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_updateRoom_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 int
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
 	return args, nil
 }
 
@@ -460,48 +443,6 @@ func (ec *executionContext) _Mutation_createRoom(ctx context.Context, field grap
 	return ec.marshalNRoom2ᚖmultipokerᚋinternalᚋmodelsᚐRoom(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_updateRoom(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_updateRoom_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateRoom(rctx, args["id"].(int))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*models.Room)
-	fc.Result = res
-	return ec.marshalNRoom2ᚖmultipokerᚋinternalᚋmodelsᚐRoom(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -542,6 +483,41 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	res := resTmp.(*models.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖmultipokerᚋinternalᚋmodelsᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_rooms(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Rooms(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Room)
+	fc.Result = res
+	return ec.marshalNRoom2ᚕᚖmultipokerᚋinternalᚋmodelsᚐRoomᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2231,19 +2207,19 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "vote":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vote"))
-			it.Vote, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "isAdmin":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isAdmin"))
 			it.IsAdmin, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "roomId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roomId"))
+			it.RoomID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2283,16 +2259,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createRoom":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createRoom(ctx, field)
-			}
-
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "updateRoom":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateRoom(ctx, field)
 			}
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
@@ -2340,6 +2306,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "rooms":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_rooms(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "users":
 			field := field
 
@@ -3020,6 +3009,50 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 
 func (ec *executionContext) marshalNRoom2multipokerᚋinternalᚋmodelsᚐRoom(ctx context.Context, sel ast.SelectionSet, v models.Room) graphql.Marshaler {
 	return ec._Room(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRoom2ᚕᚖmultipokerᚋinternalᚋmodelsᚐRoomᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Room) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRoom2ᚖmultipokerᚋinternalᚋmodelsᚐRoom(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNRoom2ᚖmultipokerᚋinternalᚋmodelsᚐRoom(ctx context.Context, sel ast.SelectionSet, v *models.Room) graphql.Marshaler {

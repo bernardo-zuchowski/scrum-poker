@@ -5,12 +5,11 @@ package gresolvers
 
 import (
 	"context"
-	"fmt"
 	"multipoker/api/graphql/generated"
 	gmodels "multipoker/api/graphql/models"
 	"multipoker/internal/dto"
 	"multipoker/internal/models"
-	roomRepository "multipoker/internal/repositories/room"
+	repository "multipoker/internal/repository"
 )
 
 func (r *mutationResolver) CreateRoom(ctx context.Context, data gmodels.CreateRoomInput) (*models.Room, error) {
@@ -19,14 +18,18 @@ func (r *mutationResolver) CreateRoom(ctx context.Context, data gmodels.CreateRo
 		HostName: &data.HostName,
 	}
 
-	return roomRepository.CreateRoom(dto)
+	return repository.CreateRoom(dto)
 }
 
-func (r *mutationResolver) UpdateRoom(ctx context.Context, id int) (*models.Room, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) Rooms(ctx context.Context) ([]*models.Room, error) {
+	return repository.GetAllRooms()
 }
 
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
+// Query returns generated.QueryResolver implementation.
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
+
 type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
