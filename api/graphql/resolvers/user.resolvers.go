@@ -8,7 +8,7 @@ import (
 	gmodels "multipoker/api/graphql/models"
 	"multipoker/internal/dto"
 	"multipoker/internal/models"
-	repository "multipoker/internal/repository"
+	"multipoker/internal/repository"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, data gmodels.CreateUserInput) (*models.User, error) {

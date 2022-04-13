@@ -9,7 +9,7 @@ import (
 	gmodels "multipoker/api/graphql/models"
 	"multipoker/internal/dto"
 	"multipoker/internal/models"
-	repository "multipoker/internal/repository"
+	"multipoker/internal/repository"
 )
 
 func (r *mutationResolver) CreateRoom(ctx context.Context, data gmodels.CreateRoomInput) (*models.Room, error) {
