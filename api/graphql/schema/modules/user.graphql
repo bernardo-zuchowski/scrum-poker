@@ -15,6 +15,13 @@ input CreateUserInput {
   roomId: Int!
 }
 
+input CreateVoteInput {
+  vote: Int!
+  userId: Int!
+}
+
+
 extend type Mutation {
   createUser(data: CreateUserInput!): User!
+  createVote(data: CreateVoteInput!): User!
 }

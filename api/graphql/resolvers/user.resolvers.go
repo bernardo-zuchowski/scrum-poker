@@ -20,6 +20,15 @@ func (r *mutationResolver) CreateUser(ctx context.Context, data gmodels.CreateUs
 	return repository.CreateUser(dto)
 }
 
+func (r *mutationResolver) CreateVote(ctx context.Context, data gmodels.CreateVoteInput) (*models.User, error) {
+	dto := &dto.CreateVoteDTO{
+		Vote:   data.Vote,
+		UserID: data.UserID,
+	}
+
+	return repository.CreateVote(dto)
+}
+
 func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 	return repository.GetAllUsers()
 }
