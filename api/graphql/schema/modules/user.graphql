@@ -1,7 +1,7 @@
 type User {
   id: Int!
   username: String!
-  vote: Int
+  vote: Float!
   isAdmin: Boolean!
 }
 
@@ -16,7 +16,7 @@ input CreateUserInput {
 }
 
 input CreateVoteInput {
-  vote: Int!
+  vote: Float!
   userId: Int!
 }
 

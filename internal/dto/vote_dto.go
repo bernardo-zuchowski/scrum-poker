@@ -1,6 +1,6 @@
 package dto
 
 type CreateVoteDTO struct {
-	Vote   int
+	Vote   float64
 	UserID int
 }

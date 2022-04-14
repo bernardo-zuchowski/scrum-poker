@@ -54,6 +54,7 @@ type ComplexityRoot struct {
 		HealthCheck func(childComplexity int) int
 		Rooms       func(childComplexity int) int
 		Users       func(childComplexity int) int
+		Votes       func(childComplexity int, data gmodels.GetRoomVotesInput) int
 	}
 
 	Room struct {
@@ -78,6 +79,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Rooms(ctx context.Context) ([]*models.Room, error)
+	Votes(ctx context.Context, data gmodels.GetRoomVotesInput) (*models.Room, error)
 	Users(ctx context.Context) ([]*models.User, error)
 	HealthCheck(ctx context.Context) (bool, error)
 }
@@ -153,6 +155,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Users(childComplexity), true
+
+	case "Query.votes":
+		if e.complexity.Query.Votes == nil {
+			break
+		}
+
+		args, err := ec.field_Query_votes_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Votes(childComplexity, args["data"].(gmodels.GetRoomVotesInput)), true
 
 	case "Room.averageVote":
 		if e.complexity.Room.AverageVote == nil {
@@ -281,8 +295,13 @@ var sources = []*ast.Source{
   averageVote: Float!
 }
 
+input GetRoomVotesInput {
+  roomId: Int!
+}
+
 extend type Query {
   rooms: [Room!]!
+  votes(data: GetRoomVotesInput!): Room!
 }
 
 input CreateRoomInput {
@@ -296,7 +315,7 @@ extend type Mutation {
 	{Name: "api/graphql/schema/modules/user.graphql", Input: `type User {
   id: Int!
   username: String!
-  vote: Int
+  vote: Float!
   isAdmin: Boolean!
 }
 
@@ -311,7 +330,7 @@ input CreateUserInput {
 }
 
 input CreateVoteInput {
-  vote: Int!
+  vote: Float!
   userId: Int!
 }
 
@@ -387,6 +406,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_votes_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gmodels.GetRoomVotesInput
+	if tmp, ok := rawArgs["data"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+		arg0, err = ec.unmarshalNGetRoomVotesInput2multipokerᚋapiᚋgraphqlᚋmodelsᚐGetRoomVotesInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["data"] = arg0
 	return args, nil
 }
 
@@ -587,6 +621,48 @@ func (ec *executionContext) _Query_rooms(ctx context.Context, field graphql.Coll
 	res := resTmp.([]*models.Room)
 	fc.Result = res
 	return ec.marshalNRoom2ᚕᚖmultipokerᚋinternalᚋmodelsᚐRoomᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_votes(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_votes_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Votes(rctx, args["data"].(gmodels.GetRoomVotesInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Room)
+	fc.Result = res
+	return ec.marshalNRoom2ᚖmultipokerᚋinternalᚋmodelsᚐRoom(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -965,11 +1041,14 @@ func (ec *executionContext) _User_vote(ctx context.Context, field graphql.Collec
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(float64)
 	fc.Result = res
-	return ec.marshalOInt2int(ctx, field.Selections, res)
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_isAdmin(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
@@ -2276,7 +2355,7 @@ func (ec *executionContext) unmarshalInputCreateVoteInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vote"))
-			it.Vote, err = ec.unmarshalNInt2int(ctx, v)
+			it.Vote, err = ec.unmarshalNFloat2float64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2285,6 +2364,29 @@ func (ec *executionContext) unmarshalInputCreateVoteInput(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			it.UserID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGetRoomVotesInput(ctx context.Context, obj interface{}) (gmodels.GetRoomVotesInput, error) {
+	var it gmodels.GetRoomVotesInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "roomId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roomId"))
+			it.RoomID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2391,6 +2493,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_rooms(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "votes":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_votes(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2573,6 +2698,9 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = innerFunc(ctx)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "isAdmin":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._User_isAdmin(ctx, field, obj)
@@ -3062,6 +3190,11 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
+func (ec *executionContext) unmarshalNGetRoomVotesInput2multipokerᚋapiᚋgraphqlᚋmodelsᚐGetRoomVotesInput(ctx context.Context, v interface{}) (gmodels.GetRoomVotesInput, error) {
+	res, err := ec.unmarshalInputGetRoomVotesInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3484,16 +3617,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
 	return res
 }
 

@@ -5,8 +5,13 @@ type Room {
   averageVote: Float!
 }
 
+input GetRoomVotesInput {
+  roomId: Int!
+}
+
 extend type Query {
   rooms: [Room!]!
+  votes(data: GetRoomVotesInput!): Room!
 }
 
 input CreateRoomInput {

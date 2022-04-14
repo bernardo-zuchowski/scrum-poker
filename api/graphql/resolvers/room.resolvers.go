@@ -25,6 +25,14 @@ func (r *queryResolver) Rooms(ctx context.Context) ([]*models.Room, error) {
 	return repository.GetAllRooms()
 }
 
+func (r *queryResolver) Votes(ctx context.Context, data gmodels.GetRoomVotesInput) (*models.Room, error) {
+	dto := &dto.VotesDTO{
+		RoomID: data.RoomID,
+	}
+
+	return repository.RevealVotes(dto), nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 

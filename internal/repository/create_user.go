@@ -11,6 +11,7 @@ func CreateUser(data *dto.CreateUserDTO) (*models.User, error) {
 	user := &models.User{
 		ID:       GetNextUserID(),
 		Username: data.Username,
+		IsAdmin:  data.IsAdmin,
 	}
 
 	room.Users = append(room.Users, user)

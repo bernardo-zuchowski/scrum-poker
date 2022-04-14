@@ -17,6 +17,7 @@ func CreateRoom(data *dto.CreateRoomDTO) (*models.Room, error) {
 		&dto.CreateUserDTO{
 			Username: *data.HostName,
 			RoomID:   room.ID,
+			IsAdmin:  true,
 		},
 	)
 
