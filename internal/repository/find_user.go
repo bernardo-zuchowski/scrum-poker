@@ -4,9 +4,11 @@ import (
 	"multipoker/internal/models"
 )
 
-func FindUser(id int) *models.User {
-	for _, user := range Users {
-		if user.ID == id {
+func FindUser(userId int, roomId int) *models.User {
+	room := FindRoom(roomId)
+
+	for _, user := range room.Users {
+		if user.ID == userId {
 			return user
 		}
 	}

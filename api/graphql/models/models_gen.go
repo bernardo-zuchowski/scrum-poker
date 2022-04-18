@@ -16,6 +16,7 @@ type CreateUserInput struct {
 type CreateVoteInput struct {
 	Vote   float64 `json:"vote"`
 	UserID int     `json:"userId"`
+	RoomID int     `json:"roomId"`
 }
 
 type GetRoomVotesInput struct {

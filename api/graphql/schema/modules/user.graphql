@@ -18,6 +18,7 @@ input CreateUserInput {
 input CreateVoteInput {
   vote: Float!
   userId: Int!
+  roomId: Int!
 }
 
 

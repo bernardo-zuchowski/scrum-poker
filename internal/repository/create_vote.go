@@ -6,7 +6,7 @@ import (
 )
 
 func CreateVote(data *dto.CreateVoteDTO) (*models.User, error) {
-	user := FindUser(data.UserID)
+	user := FindUser(data.UserID, data.RoomID)
 
 	user.Vote = data.Vote
 

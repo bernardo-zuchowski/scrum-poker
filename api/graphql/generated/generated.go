@@ -332,6 +332,7 @@ input CreateUserInput {
 input CreateVoteInput {
   vote: Float!
   userId: Int!
+  roomId: Int!
 }
 
 
@@ -2364,6 +2365,14 @@ func (ec *executionContext) unmarshalInputCreateVoteInput(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			it.UserID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "roomId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roomId"))
+			it.RoomID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}

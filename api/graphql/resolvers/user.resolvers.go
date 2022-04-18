@@ -24,6 +24,7 @@ func (r *mutationResolver) CreateVote(ctx context.Context, data gmodels.CreateVo
 	dto := &dto.CreateVoteDTO{
 		Vote:   data.Vote,
 		UserID: data.UserID,
+		RoomID: data.RoomID,
 	}
 
 	return repository.CreateVote(dto)

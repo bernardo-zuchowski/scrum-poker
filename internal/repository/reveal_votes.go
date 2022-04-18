@@ -21,14 +21,12 @@ func RevealVotes(data *dto.VotesDTO) *models.Room {
 
 	for i := 0; i < length; i++ {
 		averageVote = (votes[i] + averageVote)
-		if i == length {
+		if i == length-1 {
 			averageVote = averageVote / float64(length)
 		}
 	}
 
-	room = &models.Room{
-		AverageVote: averageVote,
-	}
+	room.AverageVote = averageVote
 
 	return room
 }
