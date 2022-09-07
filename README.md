@@ -12,8 +12,6 @@
   <a href="#information_source-how-to-use">How To Use</a>&nbsp;&nbsp;&nbsp;
 </p>
 
-<br />
-
 ## 📕 About
 
 In memory scrum poker application
