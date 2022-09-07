@@ -33,4 +33,4 @@ This project was developed with the following technologies:
 
 ---
 
-[![Linkedin Badge](https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/dominickbrasileiro/)](https://www.linkedin.com/in/bernardo-s-zuchowski-254937142/)
+[![Linkedin Badge](https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/bernardo-s-zuchowski-254937142/)](https://www.linkedin.com/in/bernardo-s-zuchowski-254937142/)
